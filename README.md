@@ -1,6 +1,3 @@
-
-
-````md
 # 🔗 LinkShrink - Enterprise-Grade URL Shortener  
 
 LinkShrink is a high-performance, scalable URL shortening service designed to handle high-concurrency read traffic with low latency. It utilizes a Write-Around Caching strategy with Redis to ensure sub-10ms response times for frequently accessed links, backed by MongoDB for persistent storage.
