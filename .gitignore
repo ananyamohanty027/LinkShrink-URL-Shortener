@@ -1,0 +1,7 @@
+target/
+.mvn/
+.idea/
+node_modules/
+dist/
+.env
+*.log
