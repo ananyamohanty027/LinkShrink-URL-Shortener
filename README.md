@@ -42,7 +42,8 @@ The system uses a **Write-Around Cache Pattern** optimized for read-heavy worklo
 ---
 
 ## 📸 Screenshots  
-*(Add your LinkShrink UI screenshot here)*  
+*<img width="1619" height="944" alt="Screenshot 2025-12-01 210554" src="https://github.com/user-attachments/assets/8a5bd93b-a439-451d-a66d-e35e1d2f7352" />*
+ 
 
 ---
 
