@@ -138,10 +138,5 @@ Redirects user to the original URL (HTTP 302).
 💻 **GitHub:**
 [https://github.com/ananyamohanty027](https://github.com/ananyamohanty027)
 
----
-
-```
-
----
 
 
