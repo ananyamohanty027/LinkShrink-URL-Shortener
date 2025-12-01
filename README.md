@@ -43,7 +43,9 @@ The system uses a **Write-Around Cache Pattern** optimized for read-heavy worklo
 
 ## 📸 Screenshots  
 *<img width="1619" height="944" alt="Screenshot 2025-12-01 210554" src="https://github.com/user-attachments/assets/8a5bd93b-a439-451d-a66d-e35e1d2f7352" />*
- 
+
+ <img width="1910" height="813" alt="Screenshot 2025-12-01 212150" src="https://github.com/user-attachments/assets/156bf850-1449-479d-b46c-76b322302f82" />
+
 
 ---
 
