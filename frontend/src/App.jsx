@@ -8,6 +8,13 @@ const App = () => {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
 
+  // -------------------------------------------------------------------------
+  // CONFIGURATION: Dynamic API URL
+  // -------------------------------------------------------------------------
+  // 1. In Production (Vercel): Set 'VITE_API_URL' in Vercel Environment Variables
+  // 2. In Development (Localhost): It defaults to 'http://localhost:8080'
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -16,19 +23,23 @@ const App = () => {
     setCopied(false);
 
     try {
-      // In production, replace http://localhost:8080 with your deployed backend URL
-      const response = await fetch('http://localhost:8080/api/v1/shorten', {
+      console.log(`Sending request to: ${API_BASE_URL}/api/v1/shorten`);
+      
+      const response = await fetch(`${API_BASE_URL}/api/v1/shorten`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ originalUrl: url }),
       });
 
-      if (!response.ok) throw new Error('Failed to shorten URL');
+      if (!response.ok) {
+        throw new Error('Failed to shorten URL. Is the backend running?');
+      }
 
       const data = await response.json();
       setShortUrl(data.shortUrl);
     } catch (err) {
-      setError('Server error. Ensure backend is running.');
+      console.error(err);
+      setError('Server error. Ensure backend is deployed and running.');
     } finally {
       setLoading(false);
     }
