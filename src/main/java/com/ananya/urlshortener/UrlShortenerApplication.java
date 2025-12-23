@@ -3,6 +3,8 @@ package com.ananya.urlshortener;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.annotation.Id;
@@ -13,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -41,7 +42,7 @@ class UrlMapping {
     private long clickCount;
 }
 
-// ------------------- 2. THE DTO (Data Transfer Object) -------------------
+// ------------------- 2. THE DTOs (Data Transfer Objects) -------------------
 @Data
 class ShortenRequest {
     private String originalUrl;
@@ -60,7 +61,7 @@ interface UrlRepository extends MongoRepository<UrlMapping, String> {
     Optional<UrlMapping> findByShortCode(String shortCode);
 }
 
-// ------------------- 4. THE SERVICE (Business Logic & System Design) -------------------
+// ------------------- 4. THE SERVICE (Business Logic) -------------------
 @Service
 class UrlService {
 
@@ -70,11 +71,13 @@ class UrlService {
     @Autowired
     private StringRedisTemplate redisTemplate; // Redis for Caching
 
-    private static final String BASE_URL = "http://localhost:8080/";
+    // UPDATED: Dynamically inject URL from properties/env, default to localhost
+    @Value("${app.baseUrl:http://localhost:8080/}")
+    private String baseUrl;
 
     // --- Core Logic: Shortening ---
     public ShortenResponse shortenUrl(String originalUrl) {
-        // 1. Generate a generic unique ID (In prod, use a distributed ID generator like Snowflake)
+        // 1. Generate a generic unique ID
         String shortCode = generateBase62Code();
 
         // 2. Save to Database (MongoDB)
@@ -90,10 +93,11 @@ class UrlService {
         // Key: "url:xyz123", Value: "https://google.com", TTL: 10 minutes
         redisTemplate.opsForValue().set("url:" + shortCode, originalUrl, 10, TimeUnit.MINUTES);
 
-        return new ShortenResponse(BASE_URL + shortCode, originalUrl, 600);
+        // Use the dynamic baseUrl here
+        return new ShortenResponse(baseUrl + shortCode, originalUrl, 600);
     }
 
-    // --- Core Logic: Retreival (The "Heavy" Backend Part) ---
+    // --- Core Logic: Retrieval (The "Heavy" Backend Part) ---
     public String getOriginalUrl(String shortCode) {
         // Step 1: Check Redis Cache (Fastest)
         String cachedUrl = redisTemplate.opsForValue().get("url:" + shortCode);
@@ -110,19 +114,19 @@ class UrlService {
         // Step 3: Populate Redis for next time (Lazy Loading)
         redisTemplate.opsForValue().set("url:" + shortCode, mapping.getOriginalUrl(), 10, TimeUnit.MINUTES);
 
-        // Step 4: Increment Analytics (Async ideally, but sync here for simplicity)
+        // Step 4: Increment Analytics
         mapping.setClickCount(mapping.getClickCount() + 1);
         urlRepository.save(mapping);
 
         return mapping.getOriginalUrl();
     }
 
-    // Simple Base62 Logic (In prod, this needs to be collision-proof)
+    // Simple Base62 Logic
     private String generateBase62Code() {
         String allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder sb = new StringBuilder();
-        for(int i=0; i<7; i++) {
-            int index = (int)(Math.random() * allowed.length());
+        for (int i = 0; i < 7; i++) {
+            int index = (int) (Math.random() * allowed.length());
             sb.append(allowed.charAt(index));
         }
         return sb.toString();
@@ -132,7 +136,7 @@ class UrlService {
 // ------------------- 5. THE CONTROLLER (API Endpoints) -------------------
 @RestController
 @RequestMapping("/api/v1")
-@CrossOrigin(origins = "*") // Allow React Frontend to access
+@CrossOrigin(origins = "*") // Allows Frontend (React) to access this API
 class UrlController {
 
     @Autowired
@@ -146,6 +150,7 @@ class UrlController {
 
 // ------------------- 6. THE REDIRECT CONTROLLER -------------------
 @RestController
+@CrossOrigin(origins = "*")
 class RedirectController {
 
     @Autowired
