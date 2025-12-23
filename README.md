@@ -2,8 +2,7 @@
 
 LinkShrink is a high-performance, scalable URL shortening service designed to handle high-concurrency read traffic with low latency. It utilizes a Write-Around Caching strategy with Redis to ensure sub-10ms response times for frequently accessed links, backed by MongoDB for persistent storage.
 
-### 🚀 **Live Demo:** [https://link-shrink-url-shortener.vercel.app/](https://link-shrink-url-shortener.vercel.app/)
-
+### 🚀 **Live Demo:** [Live Link](https://link-shrink-url-shortener.vercel.app/)
 ---
 
 ## 🚀 Key Features
