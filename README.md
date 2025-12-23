@@ -1,19 +1,21 @@
-# 🔗 LinkShrink - Enterprise-Grade URL Shortener  
+# 🔗 LinkShrink - Enterprise-Grade URL Shortener
 
 LinkShrink is a high-performance, scalable URL shortening service designed to handle high-concurrency read traffic with low latency. It utilizes a Write-Around Caching strategy with Redis to ensure sub-10ms response times for frequently accessed links, backed by MongoDB for persistent storage.
 
----
-
-## 🚀 Key Features  
-- ⚡ **High Performance:** Uses Redis caching to serve hot URLs instantly, reducing DB load by ~80%.  
-- 🛡️ **Collision-Free ID Generation:** Base62 encoding for unique 7-character short codes.  
-- 📦 **Containerized:** Fully Dockerized stack (Spring Boot, MongoDB, Redis).  
-- 🎨 **Modern UI:** Responsive React + Tailwind CSS frontend.  
-- 📊 **Analytics Ready:** Architecture supports async click tracking (future scope).  
+### 🚀 **Live Demo:** [https://link-shrink-url-shortener.vercel.app/](https://link-shrink-url-shortener.vercel.app/)
 
 ---
 
-## 🛠️ Tech Stack  
+## 🚀 Key Features
+- ⚡ **High Performance:** Uses Redis caching to serve hot URLs instantly, reducing DB load by ~80%.
+- 🛡️ **Collision-Free ID Generation:** Base62 encoding for unique 7-character short codes.
+- 📦 **Containerized:** Fully Dockerized stack (Spring Boot, MongoDB, Redis).
+- 🎨 **Modern UI:** Responsive React + Tailwind CSS frontend.
+- 📊 **Analytics Ready:** Architecture supports async click tracking (future scope).
+
+---
+
+## 🛠️ Tech Stack
 
 | Component | Technology | Purpose |
 |----------|------------|----------|
@@ -25,44 +27,43 @@ LinkShrink is a high-performance, scalable URL shortening service designed to ha
 
 ---
 
-## 🏗️ System Architecture  
+## 🏗️ System Architecture
 
 The system uses a **Write-Around Cache Pattern** optimized for read-heavy workloads.
 
 ### 1. Read Request (Redirect)
-- Check Redis first  
-- **Cache Hit:** Return URL (<5ms)  
-- **Cache Miss:** Load from MongoDB → store in Redis → redirect  
+- Check Redis first
+- **Cache Hit:** Return URL (<5ms)
+- **Cache Miss:** Load from MongoDB → store in Redis → redirect
 
 ### 2. Write Request (Shorten)
-- Generate Base62 ID  
-- Save to MongoDB  
-- Write to Redis for immediate availability  
+- Generate Base62 ID
+- Save to MongoDB
+- Write to Redis for immediate availability
 
 ---
 
-## 📸 Screenshots  
+## 📸 Screenshots
 *<img width="1619" height="944" alt="Screenshot 2025-12-01 210554" src="https://github.com/user-attachments/assets/8a5bd93b-a439-451d-a66d-e35e1d2f7352" />*
 
- <img width="1910" height="813" alt="Screenshot 2025-12-01 212150" src="https://github.com/user-attachments/assets/156bf850-1449-479d-b46c-76b322302f82" />
-
+<img width="1910" height="813" alt="Screenshot 2025-12-01 212150" src="https://github.com/user-attachments/assets/156bf850-1449-479d-b46c-76b322302f82" />
 
 ---
 
-## 🏃‍♂️ How to Run Locally  
+## 🏃‍♂️ How to Run Locally
 
 ### **Prerequisites**
-- Docker Desktop (Recommended)  
-- Java 17+ (if running backend manually)  
+- Docker Desktop (Recommended)
+- Java 17+ (if running backend manually)
 - Node.js (if running frontend manually)
 
 ---
 
-## **Option 1: Run with Docker (Fastest)**  
+## **Option 1: Run with Docker (Fastest)**
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/LinkShrink-URL-Shortener.git
+git clone [https://github.com/ananyamohanty027/LinkShrink-URL-Shortener.git](https://github.com/ananyamohanty027/LinkShrink-URL-Shortener.git)
 cd LinkShrink-URL-Shortener
 ````
 
