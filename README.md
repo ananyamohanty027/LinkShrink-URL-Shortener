@@ -161,6 +161,3 @@ Redirects to the original URL with **HTTP 302**.
 * 🔗 LinkedIn: [https://www.linkedin.com/in/ananya008](https://www.linkedin.com/in/ananya008)
 * 💻 GitHub: [https://github.com/ananyamohanty027](https://github.com/ananyamohanty027)
 
-
-Just tell me 👍
-```
