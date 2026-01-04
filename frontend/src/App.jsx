@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, ExternalLink, Copy, CheckCircle } from 'lucide-react';
+// 1. IMPORT THE QR CODE LIBRARY
+import { QRCodeCanvas } from 'qrcode.react';
 
 const App = () => {
   const [url, setUrl] = useState('');
@@ -11,8 +13,6 @@ const App = () => {
   // -------------------------------------------------------------------------
   // CONFIGURATION: Dynamic API URL
   // -------------------------------------------------------------------------
-  // 1. In Production (Vercel): Set 'VITE_API_URL' in Vercel Environment Variables
-  // 2. In Development (Localhost): It defaults to 'http://localhost:8080'
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
   const handleSubmit = async (e) => {
@@ -32,14 +32,18 @@ const App = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to shorten URL. Is the backend running?');
+         // Check if it's the rate limit error
+         if (response.status === 429) {
+            throw new Error('Rate limit exceeded! You are going too fast.');
+         }
+         throw new Error('Failed to shorten URL. Is the backend running?');
       }
 
       const data = await response.json();
       setShortUrl(data.shortUrl);
     } catch (err) {
       console.error(err);
-      setError('Server error. Ensure backend is deployed and running.');
+      setError(err.message || 'Server error. Ensure backend is deployed and running.');
     } finally {
       setLoading(false);
     }
@@ -52,7 +56,7 @@ const App = () => {
   };
 
   return (
-    // MAIN CONTAINER: Centers the box using Flexbox
+    // MAIN CONTAINER
     <div className="w-full min-h-screen bg-slate-900 text-white flex items-center justify-center p-4">
 
       {/* THE APP BOX */}
@@ -117,7 +121,7 @@ const App = () => {
             <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-2">
               Your Shortened Link
             </p>
-            <div className="flex items-center justify-between bg-slate-900 p-3 rounded-lg border border-slate-700">
+            <div className="flex items-center justify-between bg-slate-900 p-3 rounded-lg border border-slate-700 mb-4">
               <a
                 href={shortUrl}
                 target="_blank"
@@ -143,9 +147,22 @@ const App = () => {
                 </button>
               </div>
             </div>
-            <div className="mt-2 text-center">
-              <span className="text-xs text-green-400">
-                ⚡ Cached via Redis for instant access
+
+            {/* --- NEW QR CODE SECTION --- */}
+            <div className="flex flex-col items-center justify-center border-t border-slate-600 pt-4">
+                <p className="text-sm text-slate-400 mb-3">Scan to share instantly</p>
+                <div className="p-3 bg-white rounded-xl shadow-lg">
+                    <QRCodeCanvas 
+                        value={shortUrl} 
+                        size={128}
+                        level={"H"}
+                    />
+                </div>
+            </div>
+
+            <div className="mt-4 text-center">
+              <span className="text-xs text-green-400 bg-green-900/30 px-2 py-1 rounded-full border border-green-800">
+                ⚡ Write-Around Cache Active
               </span>
             </div>
           </div>
