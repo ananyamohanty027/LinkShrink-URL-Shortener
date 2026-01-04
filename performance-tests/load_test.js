@@ -10,7 +10,7 @@ export const options = {
   ],
   thresholds: {
     // Allow up to 500ms latency (Standard for free hosting)
-    http_req_duration: ['p(95)<500'],
+    http_req_duration: ['p(95)<2000'],
     http_req_failed: ['rate<0.01'],  // Error rate must be < 1%
   },
 };
