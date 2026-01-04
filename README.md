@@ -1,156 +1,149 @@
-# 🔗 LinkShrink – Enterprise-Grade URL Shortener
+# 🔗 LinkShrink - Enterprise-Grade URL Shortener
 
-LinkShrink is a **high-performance, scalable URL shortening service** built to handle **high-concurrency, read-heavy traffic** with **low latency**.  
-It uses a **Write-Around Caching strategy** with **Redis** to deliver **sub-10ms redirects**, while **MongoDB** ensures reliable and scalable persistent storage.
+LinkShrink is a high-performance, scalable URL shortening service designed to handle high-concurrency read traffic with low latency. It utilizes a **Redis-First Caching Strategy** to ensure sub-100ms response times for frequently accessed links, backed by **MongoDB** for persistent storage and **Docker** for containerization.
 
----
-
-## 🚀 Live Demo
-👉 https://link-shrink-url-shortener.vercel.app/
-
+### 🚀 **Live Demo:** [Live Link](https://link-shrink-url-shortener.vercel.app/)
 ---
 
 ## 🚀 Key Features
-
-- ⚡ **High Performance Redirects**  
-  Redis caching serves frequently accessed (hot) URLs instantly, reducing database reads by ~80%.
-
-- 🛡️ **Collision-Free Short Codes**  
-  Base62 encoding generates compact, unique **7-character** short URLs.
-
-- 🧠 **Write-Around Cache Strategy**  
-  Optimized for read-heavy workloads with predictable performance.
-
-- 📦 **Fully Containerized**  
-  Dockerized backend, Redis, and MongoDB for easy deployment and scalability.
-
-- 🎨 **Modern Frontend UI**  
-  Responsive React + Tailwind CSS interface.
-
-- 📊 **Analytics-Ready Architecture**  
-  Designed to support async click tracking and metrics (future scope).
+- ⚡ **High Performance:** Uses Redis caching to serve hot URLs instantly, reducing DB load by ~80%.
+- 🛡️ **Collision-Free ID Generation:** SHA-256 Hashing + Base62 encoding for deterministic 7-character short codes.
+- 🚦 **Rate Limiting:** Implements Token Bucket algorithm (Bucket4j) to prevent abuse and ensure API stability.
+- 📊 **Real-Time Analytics:** Tracks click counts using Redis atomic counters with async write-behind persistence to MongoDB.
+- 📦 **Containerized:** Fully Dockerized stack (Spring Boot, MongoDB, Redis).
+- 🎨 **Modern UI:** Responsive React + Tailwind CSS frontend with QR Code generation.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology | Purpose |
-|-----|-----------|--------|
-| Backend | Java 17, Spring Boot 3 | REST APIs & business logic |
-| Database | MongoDB | Persistent URL storage |
-| Cache | Redis | Ultra-fast URL lookups |
-| Frontend | React.js, Tailwind CSS | User interface |
-| DevOps | Docker, Docker Compose | Containerization |
+| Component | Technology | Purpose |
+|----------|------------|----------|
+| Backend | Java 17, Spring Boot 3 | REST APIs, business logic |
+| Database | MongoDB | NoSQL storage for URL mapping |
+| Caching | Redis | High-speed in-memory retrieval & atomic counters |
+| Security | Bucket4j | Rate limiting (Token Bucket Algorithm) |
+| Frontend | React.js, Tailwind CSS | UI for shortening and viewing URLs |
+| DevOps | Docker, Docker Compose, GitHub Actions | Containerization and CI/CD Pipeline |
+| Testing | k6 | Load testing and performance benchmarking |
 
 ---
 
 ## 🏗️ System Architecture
 
-LinkShrink follows a **Write-Around Cache Pattern**, ideal for **read-heavy systems** like URL shorteners.
+The system uses a **Read-Through / Write-Behind Cache Pattern** optimized for speed and data consistency.
 
-### 🔁 Read Flow (Redirect)
-1. Request hits Redis
-2. **Cache Hit** → Redirect instantly (<5ms)
-3. **Cache Miss** → Fetch from MongoDB → Store in Redis → Redirect
+### 1. Read Request (Redirect)
+- **Check Redis:** If key exists, return URL immediately (**~40ms latency**).
+- **Cache Miss:** Fetch from MongoDB → Write to Redis (24h TTL) → Redirect.
+- **Analytics:** Increment Redis counter instantly; asynchronously persist count to MongoDB.
 
-### ✍️ Write Flow (Shorten URL)
-1. Generate Base62 short code
-2. Persist mapping in MongoDB
-3. Write-through to Redis for immediate availability
-
----
-
-## 📸 Screenshots
-
-<img width="1600" alt="Home Page" src="https://github.com/user-attachments/assets/8a5bd93b-a439-451d-a66d-e35e1d2f7352" />
-<img width="1800" alt="Shortened URL Result" src="https://github.com/user-attachments/assets/ec7471d5-272e-4134-9ef1-cf5fff7a1a8d" />
+### 2. Write Request (Shorten)
+- Generate SHA-256 Hash -> Base62 Encode.
+- Save to MongoDB.
+- **Cold Start Optimization:** Does not pre-load cache to save memory (cache is populated on first access).
 
 ---
 
-## 🏃‍♂️ Run Locally
+## 🚀 Performance & Scalability
 
-### ✅ Prerequisites
-- Docker Desktop (recommended)
-- Java 17+
-- Node.js 18+
+The application was stress-tested using **k6** to simulate concurrent user traffic on a production deployment (Render Free Tier).
+
+**Benchmark Results:**
+- **Concurrent Users:** 50
+- **Error Rate:** **0.00%** (High Availability)
+- **Median Latency:** **40.6ms** (High Performance)
+- **Throughput:** ~300 requests/minute handled without degradation.
+
+### 📸 Load Test Proof
+![Performance Test Results](performance_results.png)
 
 ---
 
-## ⚡ Option 1: Run Using Docker (Recommended)
+## 📸 Application Screenshots
+<img width="1619" height="944" alt="Screenshot 2025-12-01 210554" src="https://github.com/user-attachments/assets/8a5bd93b-a439-451d-a66d-e35e1d2f7352" />
+<img width="1887" height="936" alt="Screenshot 2026-01-04 124742" src="https://github.com/user-attachments/assets/ec7471d5-272e-4134-9ef1-cf5fff7a1a8d" />
 
-### 1️⃣ Clone Repository
+---
+
+## 🏃‍♂️ How to Run Locally
+
+### **Prerequisites**
+- Docker Desktop (Recommended)
+- Java 17+ (if running backend manually)
+- Node.js (if running frontend manually)
+
+## **Option 1: Run with Docker (Fastest)**
+
+### 1. Clone the repository
 ```bash
-git clone https://github.com/ananyamohanty027/LinkShrink-URL-Shortener.git
+git clone [https://github.com/ananyamohanty027/LinkShrink-URL-Shortener.git](https://github.com/ananyamohanty027/LinkShrink-URL-Shortener.git)
 cd LinkShrink-URL-Shortener
-````
 
-### 2️⃣ Start MongoDB & Redis
+```
+
+### 2. Start Redis & MongoDB
 
 ```bash
 docker-compose up -d
+
 ```
 
-### 3️⃣ Run Backend
+### 3. Run Backend
 
 ```bash
 ./mvnw spring-boot:run
+
 ```
 
-### 4️⃣ Run Frontend
+### 4. Run Frontend
 
 ```bash
 cd frontend
 npm install
 npm run dev
+
 ```
 
-### 5️⃣ Access Application
+### 5. Access the app
 
-* Frontend → [http://localhost:5173](http://localhost:5173)
-* Backend API → [http://localhost:8080](http://localhost:8080)
+* Frontend → **http://localhost:5173**
+* Backend API → **http://localhost:8080**
 
 ---
 
 ## 🔌 API Endpoints
 
-### ➕ Shorten URL
+### **1. Shorten a URL**
 
 **POST** `/api/v1/shorten`
 
-**Request Body**
+**Body:**
 
 ```json
 {
-  "originalUrl": "https://www.google.com"
+  "originalUrl": "[https://www.google.com](https://www.google.com)"
 }
+
 ```
 
-**Response**
+### **2. Redirect**
 
-```json
-{
-  "shortUrl": "http://localhost:8080/api/v1/AbCd12",
-  "originalUrl": "https://www.google.com",
-  "expiresSeconds": 600
-}
-```
+**GET** `/{shortCode}`
+Redirects user to the original URL (HTTP 302).
+
+### **3. Get Analytics**
+
+**GET** `/api/v1/analytics/{shortCode}`
+Returns click counts from Redis/DB.
 
 ---
 
-### 🔁 Redirect
+## 🔮 Future Improvements
 
-**GET** `/api/v1/{shortCode}`
-Redirects to the original URL with **HTTP 302**.
-
----
-
-## 🔮 Future Enhancements
-
-* Kafka-based async click analytics
-* JWT-based authentication
-* Rate limiting with Bucket4j
-* URL expiration & custom aliases
-* Admin dashboard for metrics
+* Kafka-based async click tracking (for massive scale)
+* JWT-based user authentication
+* Custom alias selection
 
 ---
 
@@ -158,6 +151,6 @@ Redirects to the original URL with **HTTP 302**.
 
 **Ananya Mohanty**
 
-* 🔗 LinkedIn: [https://www.linkedin.com/in/ananya008](https://www.linkedin.com/in/ananya008)
-* 💻 GitHub: [https://github.com/ananyamohanty027](https://github.com/ananyamohanty027)
+🔗 **LinkedIn:** [https://www.linkedin.com/in/ananya008](https://www.linkedin.com/in/ananya008)
 
+💻 **GitHub:** [https://github.com/ananyamohanty027](https://github.com/ananyamohanty027)
