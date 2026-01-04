@@ -11,7 +11,9 @@ import java.net.URI;
 import java.time.Duration;
 
 @RestController
-@CrossOrigin(origins = "*") // Global CORS
+// ❌ REMOVED CLASS-LEVEL REQUEST MAPPING
+// @RequestMapping("/api/v1")  <-- This was causing the 404!
+@CrossOrigin(origins = "*")
 public class UrlShortenerController {
 
     @Autowired
@@ -20,11 +22,12 @@ public class UrlShortenerController {
     private final Bucket bucket;
 
     public UrlShortenerController() {
+        // Rate Limit: 10 requests per minute
         Bandwidth limit = Bandwidth.classic(10, Refill.greedy(10, Duration.ofMinutes(1)));
         this.bucket = Bucket.builder().addLimit(limit).build();
     }
 
-    // --- 1. API ENDPOINT (Keep this at /api/v1) ---
+    // --- 1. SHORTEN ENDPOINT (Kept at /api/v1/shorten) ---
     @PostMapping("/api/v1/shorten") 
     public ResponseEntity<?> createShortUrl(@RequestBody ShortenRequest request) {
         if (!bucket.tryConsume(1)) {
@@ -33,8 +36,8 @@ public class UrlShortenerController {
         return ResponseEntity.ok(urlService.shortenUrl(request.getOriginalUrl()));
     }
 
-    // --- 2. REDIRECT ENDPOINT (Move this to Root /) ---
-    // Now it listens at domain.com/{shortCode} instead of domain.com/api/v1/{shortCode}
+    // --- 2. REDIRECT ENDPOINT (Moved to ROOT /) ---
+    // Now it listens at https://your-site.com/{shortCode}
     @GetMapping("/{shortCode}") 
     public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
         // Ignore favicon requests (browsers ask for this automatically)
@@ -43,6 +46,7 @@ public class UrlShortenerController {
         }
 
         String originalUrl = urlService.getOriginalUrl(shortCode);
+        
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create(originalUrl))
                 .build();
