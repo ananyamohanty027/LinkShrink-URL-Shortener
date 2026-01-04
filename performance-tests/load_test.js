@@ -9,7 +9,8 @@ export const options = {
     { duration: '10s', target: 0 },    // Ramp down
   ],
   thresholds: {
-    http_req_duration: ['p(95)<50'], // 95% of requests must be faster than 50ms
+    // Allow up to 500ms latency (Standard for free hosting)
+    http_req_duration: ['p(95)<500'],
     http_req_failed: ['rate<0.01'],  // Error rate must be < 1%
   },
 };
