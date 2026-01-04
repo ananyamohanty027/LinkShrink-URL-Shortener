@@ -11,14 +11,12 @@ import java.net.URI;
 import java.time.Duration;
 
 @RestController
-@RequestMapping("/api/v1")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Global CORS
 public class UrlShortenerController {
 
     @Autowired
     private UrlShortenerService urlService;
 
-    // Bucket4j: Allows 10 requests per minute per IP (Simple Global Limit for now)
     private final Bucket bucket;
 
     public UrlShortenerController() {
@@ -26,29 +24,33 @@ public class UrlShortenerController {
         this.bucket = Bucket.builder().addLimit(limit).build();
     }
 
-    @PostMapping("/shorten")
+    // --- 1. API ENDPOINT (Keep this at /api/v1) ---
+    @PostMapping("/api/v1/shorten") 
     public ResponseEntity<?> createShortUrl(@RequestBody ShortenRequest request) {
-        // 1. Check Rate Limit
         if (!bucket.tryConsume(1)) {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Rate limit exceeded. Try again later.");
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Rate limit exceeded.");
         }
-        
-        // 2. Proceed if allowed
         return ResponseEntity.ok(urlService.shortenUrl(request.getOriginalUrl()));
     }
 
-    @GetMapping("/{shortCode}")
+    // --- 2. REDIRECT ENDPOINT (Move this to Root /) ---
+    // Now it listens at domain.com/{shortCode} instead of domain.com/api/v1/{shortCode}
+    @GetMapping("/{shortCode}") 
     public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
+        // Ignore favicon requests (browsers ask for this automatically)
+        if ("favicon.ico".equals(shortCode)) {
+            return ResponseEntity.notFound().build();
+        }
+
         String originalUrl = urlService.getOriginalUrl(shortCode);
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create(originalUrl))
                 .build();
     }
     
-    // NEW: Simple Analytics Endpoint
-    @GetMapping("/analytics/{shortCode}")
+    // --- 3. ANALYTICS (Optional) ---
+    @GetMapping("/api/v1/analytics/{shortCode}")
     public ResponseEntity<?> getAnalytics(@PathVariable String shortCode) {
-        // In a real app, you'd fetch this from the Service
-        return ResponseEntity.ok("Analytics feature enabled for: " + shortCode);
+        return ResponseEntity.ok("Analytics for " + shortCode);
     }
 }
