@@ -17,7 +17,7 @@ export const options = {
 export default function () {
   // Replace with your actual short code after running the app once
   const SHORT_CODE = "AbCd12"; 
-  const BASE_URL = "http://localhost:8080"; // Or your Render URL
+  const BASE_URL = "https://linkshrink-url-shortener.onrender.com"; // Or your Render URL
 
   // Test the Redirect (Read-Heavy)
   const res = http.get(`${BASE_URL}/${SHORT_CODE}`);
