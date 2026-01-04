@@ -56,7 +56,8 @@ The application was stress-tested using **k6** to simulate concurrent user traff
 - **Throughput:** ~300 requests/minute handled without degradation.
 
 ### 📸 Load Test Proof
-![Performance Test Results](performance_results.png)
+
+<img width="1191" height="667" alt="Screenshot 2026-01-04 212658" src="https://github.com/user-attachments/assets/cf1dd6bf-f630-4fa6-979a-20ed77560411" />
 
 ---
 
