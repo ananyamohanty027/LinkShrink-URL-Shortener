@@ -1,0 +1,19 @@
+name: Performance Test (k6)
+
+on:
+  workflow_dispatch: # Allows you to run this manually from the "Actions" tab
+
+jobs:
+  k6_load_test:
+    name: Run k6 Load Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run k6 Local Test
+        uses: grafana/k6-action@v0.3.0
+        with:
+          filename: performance-tests/load_test.js
+          flags: --vus 50 --duration 30s
